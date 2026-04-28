@@ -1,0 +1,33 @@
+# Build files
+build/
+*.o
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# ESP-IDF specific
+sdkconfig.old
+partition_table/
+*.bin
+*.elf
+.pytest_cache/
+
+# Dependencies
+components/*/managed_components/
