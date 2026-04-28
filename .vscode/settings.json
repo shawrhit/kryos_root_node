@@ -1,0 +1,15 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.espIdfPath": "/home/shawrhit/esp/esp-idf",
+  "idf.toolsPath": "/home/shawrhit/.espressif",
+  "idf.pythonInstallPath": "/usr/bin/python3",
+  "idf.currentSetup": "/home/shawrhit/esp/esp-idf",
+  "idf.flashType": "UART",
+  "idf.port": "/dev/ttyUSB1",
+  "idf.openOcdConfigs": [
+    "board/esp32-wrover-kit-3.3v.cfg"
+  ],
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32"
+  }
+}
