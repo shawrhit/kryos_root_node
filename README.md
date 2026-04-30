@@ -15,7 +15,7 @@ The root node is responsible for:
 
 ## Current Firmware Behavior
 
-The current root node firmware in `main/root_node.c`:
+The current root node firmware in `main/src/root_node.c`:
 
 - Uses an ESP32 DevKit V1 board
 - Sends a 4-byte hexadecimal payload over SPI every 5 seconds
@@ -81,7 +81,8 @@ Exit monitor with `Ctrl+]`.
 ├── CMakeLists.txt
 ├── main
 │   ├── CMakeLists.txt
-│   └── root_node.c
+│   └── src
+│       └── root_node.c
 ├── sdkconfig
 └── README.md
 ```

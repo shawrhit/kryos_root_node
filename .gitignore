@@ -1,0 +1,42 @@
+# ESP-IDF and CMake build output
+build/
+main/build/
+managed_components/
+dependencies.lock
+
+# Generated firmware artifacts
+*.bin
+*.elf
+*.map
+*.uf2
+*.hex
+*.o
+*.obj
+*.a
+*.lib
+
+# SDK configuration generated while experimenting
+sdkconfig.old
+
+# Editor and local machine state
+.vscode/
+.idea/
+.codex
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python tooling used by ESP-IDF
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+env/
+.venv/
+
+# Local logs and temporary files
+*.log
+*.tmp
+*.bak
