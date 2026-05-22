@@ -1,98 +1,36 @@
-# Kryos Root Node
+# KryOS Root Node: Mesh-to-SPI Bridge
 
-Kryos is a B.Tech final year project for fault-tolerant vaccine cold chain monitoring with edge intelligence. This repository contains the ESP32 firmware for the root node, which acts as the local edge controller for collecting node data and forwarding compact frames over SPI.
+This repository contains the firmware for the **KryOS Root Node Bridge**. It acts as the master anchor for the sensor mesh and the physical gateway to the Raspberry Pi Linux gateway.
 
-## Project Goal
+## Core Features
 
-Vaccines must stay inside a safe temperature range during storage and transport. Kryos is designed to monitor the cold chain close to the source, detect abnormal conditions early, and keep operating even when parts of the network are unreliable.
+### 1. Kingmaker Arbitration
+- **Centralized Selection:** Evaluates all sensor candidates and selects a leader based on best RSSI.
+- **Term Lock:** Enforces a **60-second leadership term** to prevent frequent switching and ensure monotonic round numbering.
+- **Dead-Leader Failover:** Implements a 15-second heartbeat monitor; triggers immediate re-election if the "King" is unresponsive.
 
-The root node is responsible for:
+### 2. Physical Gateway (SPI Bridge)
+- **IRQ-Driven:** Uses an Active Low interrupt (`GPIO_25`) to signal the Raspberry Pi when new consensus data is ready.
+- **High-Payload SPI:** Transmits a 47-byte authenticated packet (15 bytes telemetry + 32 bytes HMAC).
 
-- Coordinating local communication with connected modules
-- Sending compact data frames over SPI
-- Raising an active-low interrupt before each SPI transfer
-- Providing a firmware base for future edge intelligence and fault-tolerant decision logic
+### 3. Cryptographic Re-Signing
+- **Leader Verification:** Verifies mesh internal signatures using `KRYOS_NODE_PSK`.
+- **Master Authentication:** Re-signs finalized consensus data with the `KRYOS_MASTER_PSK` for the Linux Kernel driver.
 
-## Current Firmware Behavior
+## Hardware Pinout (per Project Bible)
 
-The current root node firmware in `main/src/root_node.c`:
+| Signal | ESP32 Pin | RPi Pin |
+|--------|-----------|---------|
+| MOSI   | GPIO 23   | MOSI    |
+| MISO   | GPIO 19   | MISO    |
+| SCLK   | GPIO 18   | SCLK    |
+| CS     | GPIO 4    | CE0     |
+| IRQ    | GPIO 25   | GPIO 24 |
 
-- Uses an ESP32 DevKit V1 board
-- Sends a 4-byte hexadecimal payload over SPI every 5 seconds
-- Changes the payload on every send by incrementing a 32-bit counter
-- Pulls the interrupt line low before sending data
-- Releases the interrupt line high after the SPI transfer completes
-- Logs each transmitted payload over the serial monitor
+## Configuration
+The bridge operates in **APSTA mode** without an external router to ensure 100% offline capability.
 
-Initial test payload:
-
-```text
-0x12345678
-```
-
-Each next frame increments by one.
-
-## ESP32 DevKit V1 Pin Mapping
-
-The firmware is configured for the ESP32 DevKit V1 VSPI pins:
-
-| Signal | ESP32 Pin | Board Label |
-| --- | --- | --- |
-| SPI SCLK | GPIO18 | D18 |
-| SPI MOSI | GPIO23 | D23 |
-| SPI MISO | GPIO19 | D19 |
-| SPI CS | GPIO5 | D5 |
-| Interrupt | GPIO25 | D25 |
-| Ground | GND | GND |
-
-The interrupt line is active low. It is normally high, then pulled low just before SPI data is transmitted.
-
-## Build
-
-Set up ESP-IDF, then build the firmware:
-
+## Build & Flash
 ```bash
-source /home/shawrhit/esp/esp-idf/export.sh
-idf.py set-target esp32
-idf.py build
+idf.py build flash monitor
 ```
-
-If the existing build directory has environment mismatch issues, rebuild with:
-
-```bash
-idf.py fullclean
-idf.py build
-```
-
-## Flash And Monitor
-
-Replace `PORT` with the serial port for the ESP32 board, for example `/dev/ttyUSB0`:
-
-```bash
-idf.py -p PORT flash monitor
-```
-
-Exit monitor with `Ctrl+]`.
-
-## Repository Layout
-
-```text
-.
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── src
-│       └── root_node.c
-├── sdkconfig
-└── README.md
-```
-
-## Roadmap
-
-Planned firmware work:
-
-- Replace test hex payloads with real sensor and node status data
-- Add packet structure with node ID, timestamp, temperature, health, and checksum fields
-- Add fault detection for missing nodes, stale data, and unsafe temperature ranges
-- Add local edge intelligence for early anomaly classification
-- Add retry, buffering, and recovery behavior for unreliable links
